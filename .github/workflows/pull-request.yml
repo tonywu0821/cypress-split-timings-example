@@ -136,11 +136,11 @@ jobs:
       - name: Show merged timings 🖨️
         run: |
           echo off
-          echo '${{ needs.split.outputs.merged-timings }}'
+          echo '${{ needs.merge-split-timings.outputs.timings }}'
 
       - name: Write updated timings 💾
         # pretty-print json string into a file
-        run: echo '${{ toJson(fromJson(needs.split.outputs.merged-timings)) }}' > timings.json
+        run: echo '${{ toJson(fromJson(needs.merge-split-timings.outputs.timings)) }}' > timings.json
 
       - name: Commit changed spec timings ⏱️
         # https://github.com/stefanzweifel/git-auto-commit-action
