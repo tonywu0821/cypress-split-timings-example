@@ -61,7 +61,7 @@ jobs:
   
   merge-split-timings:
     # only merge timings if E2E specs were successful
-    if: ${{ inputs.split-file }}
+    # if: ${{ inputs.split-file }}
     needs: [test-split]
     outputs:
       timings: ${{ steps.merge.outputs.merged-timings }}
@@ -109,7 +109,7 @@ jobs:
           path: '${{ inputs.split-file }}'
 
   commit-updated-timings:
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     needs: [test-split, merge-split-timings]
     steps:
