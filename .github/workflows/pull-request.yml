@@ -68,7 +68,15 @@ jobs:
             coverage
             ${{ inputs.split-file }}
           if-no-files-found: ignore
-  
+  test-job:
+    runs-on: ubuntu-22.04
+    needs: [test-split]
+    steps:
+      - name: Print timings 🖨️
+        run: |
+          echo test-job
+          echo ${{ inputs.split-file }}
+        
   merge-split-timings:
     # only merge timings if E2E specs were successful
     # if: ${{ inputs.split-file }}
