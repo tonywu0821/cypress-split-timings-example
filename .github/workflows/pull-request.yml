@@ -7,10 +7,11 @@ on:
       split-file:
         description: 'timings file'
         required: false
+        type: string
         default: 'timings.json'
   pull_request:
     branches:
-      - develop
+      - main
 
 jobs:
   test-split:
@@ -129,6 +130,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Updated spec timings
-          branch: main
           file_pattern: timings.json
   
