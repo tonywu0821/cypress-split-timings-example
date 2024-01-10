@@ -8,7 +8,7 @@ on:
         description: 'timings file'
         required: false
         type: string
-        default: 'timings.json'
+        default: 'cypress/timings.json'
     outputs:
       merged-timings:
         description: "Combined timings JSON from split files"
@@ -54,7 +54,7 @@ jobs:
           # PERCY_TARGET_BRANCH: ${{ inputs.percy_target_branch }}
           SPLIT: ${{ strategy.job-total }}
           SPLIT_INDEX: ${{ strategy.job-index }}
-          SPLIT_FILE: 'timings.json'
+          SPLIT_FILE: 'cypress/timings.json'
           DEBUG: cypress-split
 
       - uses: actions/upload-artifact@v3
@@ -66,7 +66,7 @@ jobs:
             cypress/videos
             cypress/results
             coverage
-            timings.json
+            cypress/timings.json
           if-no-files-found: ignore
   test-job:
     runs-on: ubuntu-22.04
@@ -107,8 +107,8 @@ jobs:
         run: |
           npx cypress-split-merge \
             --parent-folder split-results \
-            --split-file timings.json \
-            --output timings.json \
+            --split-file cypress/timings.json \
+            --output cypress/timings.json \
             --set-gha-output merged-timings
         # env:
         #   # pass the DEBUG environment variable
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: merged-split-file
-          path: 'timings.json'
+          path: 'cypress/timings.json'
 
   commit-updated-timings:
     # if: github.ref == 'refs/heads/main'
@@ -140,12 +140,12 @@ jobs:
 
       - name: Write updated timings 💾
         # pretty-print json string into a file
-        run: echo '${{ toJson(fromJson(needs.merge-split-timings.outputs.timings)) }}' > timings.json
+        run: echo '${{ toJson(fromJson(needs.merge-split-timings.outputs.timings)) }}' > cypress/timings.json
 
       - name: Commit changed spec timings ⏱️
         # https://github.com/stefanzweifel/git-auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Updated spec timings
-          file_pattern: timings.json
+          file_pattern: cypress/timings.json
   
