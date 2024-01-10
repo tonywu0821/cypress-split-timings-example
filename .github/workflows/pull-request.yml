@@ -75,7 +75,6 @@ jobs:
       - name: Print timings 🖨️
         run: |
           echo test-job
-          echo ${{ inputs.split-file }}
         
   merge-split-timings:
     # only merge timings if E2E specs were successful
@@ -108,8 +107,8 @@ jobs:
         run: |
           npx cypress-split-merge \
             --parent-folder split-results \
-            --split-file ${{ inputs.split-file }} \
-            --output ${{ inputs.split-file }} \
+            --split-file timings.json \
+            --output timings.json \
             --set-gha-output merged-timings
         # env:
         #   # pass the DEBUG environment variable
@@ -124,7 +123,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: merged-split-file
-          path: '${{ inputs.split-file }}'
+          path: 'timings.json'
 
   commit-updated-timings:
     # if: github.ref == 'refs/heads/main'
