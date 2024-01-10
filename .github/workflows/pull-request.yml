@@ -2,16 +2,26 @@ name: Develop Pull Request
 run-name: Develop Pull Request by @${{ github.actor }}
 
 on: 
-  workflow_dispatch:
+  workflow_call:
     inputs:
       split-file:
         description: 'timings file'
         required: false
         type: string
         default: 'timings.json'
+    outputs:
+      merged-timings:
+        description: "Combined timings JSON from split files"
+        value: ${{ jobs.merge-split-timings.outputs.timings }}
+    
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - apps/**/*.md
+      - apps/documentation/**
+      - iac/**
+      - README.md
 
 jobs:
   test-split:
