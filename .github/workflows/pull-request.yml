@@ -10,7 +10,7 @@ on:
         default: 'timings.json'
   pull_request:
     branches:
-      - develop
+      - main
 
 jobs:
   test-split:
