@@ -97,10 +97,25 @@ jobs:
         # but cannot specify the pattern of the test artifacts yet
         # https://github.com/actions/download-artifact/issues/103
         with:
+          name: cypress-split-results-e2e-0
           path: split-results
+          # doesn't work
+          # working-directory: ./cypress
+      - uses: actions/download-artifact@v3
+        # download all test results artifacts from the previous jobs
+        # it would be nice to download only the split jobs test artifacts
+        # but cannot specify the pattern of the test artifacts yet
+        # https://github.com/actions/download-artifact/issues/103
+        with:
+          name: cypress-split-results-e2e-1
+          path: split-results
+
       - name: Display structure of downloaded files
         run: ls -R split-results
-
+      - name: pwd
+        run: pwd
+      - name: ls
+        run: ls
       # to merge timings you need v1.13+ of cypress-split
       - name: Merge split timings
         id: merge
