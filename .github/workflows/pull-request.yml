@@ -57,16 +57,11 @@ jobs:
           SPLIT_FILE: 'cypress/timings.json'
           DEBUG: cypress-split
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: cypress-split-results-e2e-${{ strategy.job-index }}
-          path: |
-            cypress/screenshots
-            cypress/videos
-            cypress/results
-            coverage
-            cypress/timings.json
+          name: cypress-split-results-${{ strategy.job-index }}
+          path: cypress/timings.json
           if-no-files-found: ignore
   test-job:
     runs-on: ubuntu-22.04
@@ -91,24 +86,16 @@ jobs:
         with:
           runTests: false
       # https://github.com/actions/download-artifact
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         # download all test results artifacts from the previous jobs
         # it would be nice to download only the split jobs test artifacts
         # but cannot specify the pattern of the test artifacts yet
         # https://github.com/actions/download-artifact/issues/103
         with:
-          name: cypress-split-results-e2e-0
           path: split-results
+          pattern: cypress-split-results-*
           # doesn't work
           # working-directory: ./cypress
-      - uses: actions/download-artifact@v3
-        # download all test results artifacts from the previous jobs
-        # it would be nice to download only the split jobs test artifacts
-        # but cannot specify the pattern of the test artifacts yet
-        # https://github.com/actions/download-artifact/issues/103
-        with:
-          name: cypress-split-results-e2e-1
-          path: split-results
 
       - name: Display structure of downloaded files
         run: ls -R split-results
