@@ -22,3 +22,5 @@ Author: Gleb Bahmutov &lt;gleb.bahmutov@gmail.com&gt; &copy; 2023
 - [my Cypress courses](https://cypress.tips/courses)
 
 License: MIT - do anything with the code, but don't blame me if it does not work.
+
+

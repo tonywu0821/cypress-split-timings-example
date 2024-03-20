@@ -8,7 +8,7 @@ on:
         description: 'timings file'
         required: false
         type: string
-        default: 'timings.json'
+        default: 'cypress/timings.json'
     outputs:
       merged-timings:
         description: "Combined timings JSON from split files"
@@ -54,21 +54,23 @@ jobs:
           # PERCY_TARGET_BRANCH: ${{ inputs.percy_target_branch }}
           SPLIT: ${{ strategy.job-total }}
           SPLIT_INDEX: ${{ strategy.job-index }}
-          SPLIT_FILE: 'timings.json'
+          SPLIT_FILE: 'cypress/timings.json'
           DEBUG: cypress-split
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: cypress-split-results-e2e-${{ strategy.job-index }}
-          path: |
-            cypress/screenshots
-            cypress/videos
-            cypress/results
-            coverage
-            ${{ inputs.split-file }}
+          name: cypress-split-results-${{ strategy.job-index }}
+          path: cypress/timings.json
           if-no-files-found: ignore
-  
+  test-job:
+    runs-on: ubuntu-22.04
+    needs: [test-split]
+    steps:
+      - name: Print timings 🖨️
+        run: |
+          echo test-job
+        
   merge-split-timings:
     # only merge timings if E2E specs were successful
     # if: ${{ inputs.split-file }}
@@ -84,24 +86,32 @@ jobs:
         with:
           runTests: false
       # https://github.com/actions/download-artifact
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         # download all test results artifacts from the previous jobs
         # it would be nice to download only the split jobs test artifacts
         # but cannot specify the pattern of the test artifacts yet
         # https://github.com/actions/download-artifact/issues/103
         with:
+          merge-multiple: true
           path: split-results
+          pattern: cypress-split-results-*
+          # doesn't work
+          # working-directory: ./cypress
+
       - name: Display structure of downloaded files
         run: ls -R split-results
-
+      - name: pwd
+        run: pwd
+      - name: ls
+        run: ls
       # to merge timings you need v1.13+ of cypress-split
       - name: Merge split timings
         id: merge
         run: |
           npx cypress-split-merge \
             --parent-folder split-results \
-            --split-file ${{ inputs.split-file }} \
-            --output ${{ inputs.split-file }} \
+            --split-file cypress/timings.json \
+            --output cypress/timings.json \
             --set-gha-output merged-timings
         # env:
         #   # pass the DEBUG environment variable
@@ -116,7 +126,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: merged-split-file
-          path: '${{ inputs.split-file }}'
+          path: 'cypress/timings.json'
 
   commit-updated-timings:
     # if: github.ref == 'refs/heads/main'
@@ -129,16 +139,16 @@ jobs:
       - name: Show merged timings 🖨️
         run: |
           echo off
-          echo '${{ needs.split.outputs.merged-timings }}'
+          echo '${{ needs.merge-split-timings.outputs.timings }}'
 
       - name: Write updated timings 💾
         # pretty-print json string into a file
-        run: echo '${{ toJson(fromJson(needs.split.outputs.merged-timings)) }}' > timings.json
+        run: echo '${{ toJson(fromJson(needs.merge-split-timings.outputs.timings)) }}' > cypress/timings.json
 
       - name: Commit changed spec timings ⏱️
         # https://github.com/stefanzweifel/git-auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Updated spec timings
-          file_pattern: timings.json
+          file_pattern: cypress/timings.json
   
